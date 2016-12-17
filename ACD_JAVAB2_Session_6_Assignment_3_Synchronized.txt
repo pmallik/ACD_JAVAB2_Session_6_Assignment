@@ -1,0 +1,96 @@
+=================================================================================================================
+//Online bank class which extends thread and have withdrwas method 
+
+public class OnLineBank extends Thread {
+
+ int balance = 200;
+
+ public void deposit(int amount) {
+  this.balance = amount;
+  System.out.println(Thread.currentThread().getName()+" Deposit:" + balance);
+ }
+
+//Thread accesses the withdraw method it acquired the lock of the object
+// on which this method was called, which in our case is the bank object.
+// An it will release the lock only after it exists the withdraw method.
+// While a thread has a lock of a Object if another thread tries to access
+// a method marked synchronized with the same Object, it will have to wait.
+// That is it will not in the Waiting state and will get access only after
+// the lock on the object is released. 
+
+ public   synchronized void  withdraw(int amount) throws Exception{
+  if (balance >= amount) {
+   
+   System.out.println(Thread.currentThread().getName()+" Withdrawing: " + amount);
+   Thread.sleep(5000);
+   balance =balance- amount;
+   System.out.println(Thread.currentThread().getName()+" Withdrawn " + amount);
+  
+  } else {
+   System.out.println(Thread.currentThread().getName()+" Withdraw: entered amount : " + amount + " more than balance:" + balance);
+  }
+ }
+}
+=====================================================================================================================
+// Withdraw class which actualluy override the run method of Thread class and call OnlineBank Withdraw method and attch it to thread
+
+
+public class Withdrawer extends Thread {
+ OnLineBank bank;
+
+ public Withdrawer(OnLineBank bank) {
+  this.bank = bank;
+
+ }
+ 
+ public void run(){
+  try {
+   bank.withdraw(100);
+  } catch (Exception e) {
+   // TODO Auto-generated catch block
+   e.printStackTrace();
+  }
+ }
+}
+==================================================================================================================
+//The TestBank class here creates four instances of withdrawer and passes same bank instace to all of them
+public class TestBank {
+
+ public static void main(String[] args) throws InterruptedException  {
+  
+  OnLineBank bank = new OnLineBank();
+  Withdrawer withdrawer = new Withdrawer(bank);
+  Withdrawer withdrawer2 = new Withdrawer(bank);
+  Withdrawer withdrawer3 = new Withdrawer(bank);
+  Withdrawer withdrawer4 = new Withdrawer(bank);
+  withdrawer.start();
+   Thread.sleep(1000);
+  withdrawer2.start();
+  Thread.sleep(2000);
+  withdrawer3.start();
+  withdrawer4.start();
+  
+ }
+ 
+}
+===========================================================================================================================
+Output Without Using Syncronized Total amount = 200 There are 4 threads for Withdraw
+
+
+Thread-1 Withdrawing: 100
+Thread-2 Withdrawing: 100
+Thread-3 Withdrawing: 100
+Thread-4 Withdrawing: 100
+Thread-1 Withdrawn 100
+Thread-2 Withdrawn 0
+Thread-3 Withdrawn -100
+Thread-4 Withdrawn -200
+===============================================================
+Output after using syncronized
+
+Thread-1 Withdrawing: 100
+Thread-1 Withdrawn 100
+Thread-3 Withdrawing: 100
+Thread-3 Withdrawn 100
+Thread-4 Withdraw: entered amount : 100 more than balance:0
+Thread-2 Withdraw: entered amount : 100 more than balance:0

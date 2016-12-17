@@ -1,0 +1,20 @@
+//Public class time extend the thread class 
+
+public class Timer extends Thread
+{
+	// Override run method of Thread class
+	
+    @Override
+    public void run()
+    {
+        while(true) {
+           System.out.println("Unable to load application. Timeout expired");
+           try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        }
+    }
+
